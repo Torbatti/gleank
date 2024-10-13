@@ -5,6 +5,8 @@ go 1.23.2
 require (
 	github.com/a-h/templ v0.2.778
 	github.com/go-chi/chi/v5 v5.1.0
+	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/nalgeon/redka v0.5.2
 	github.com/spf13/cobra v1.8.1
 )
 

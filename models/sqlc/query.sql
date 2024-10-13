@@ -26,13 +26,16 @@ WHERE id = ?;
 -- name: GetFolder :one
 SELECT * FROM folders
 WHERE id = ? LIMIT 1;
+-- name: GetFolderByPath :one
+SELECT * FROM folders
+WHERE path = ? LIMIT 1;
 -- name: ListFolders :many
 SELECT * FROM folders
 WHERE id = ?
 ORDER BY name;
 -- name: CreateFolder :one
 INSERT INTO folders (
-  user, url , public , name , description
+  user, path , public , name , description
 ) VALUES (
   ?, ? , ? , ? , ?
 )
@@ -47,3 +50,25 @@ WHERE id = ?;
 DELETE FROM folders
 WHERE id = ?;
 
+
+-- name: GetUser :one
+SELECT * FROM users
+WHERE id = ? LIMIT 1;
+-- name: ListUsers :many
+SELECT * FROM users
+WHERE id = ?
+ORDER BY name;
+-- name: CreateUser :one
+INSERT INTO users (
+  name, uuid 
+) VALUES (
+  ?, ? 
+)
+RETURNING *;
+-- name: UpdateUser :exec
+UPDATE users
+set name = ?
+WHERE id = ?;
+-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = ?;

@@ -2,6 +2,7 @@ package gleank
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/Torbatti/gleank/cmd"
 	"github.com/Torbatti/gleank/core"
+	"github.com/Torbatti/gleank/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -67,10 +69,10 @@ func NewWithConfig(config Config) *Gleank {
 	}
 
 	// initialize the app instance
-	// gk.appWrapper = &appWrapper{core.NewBaseApp(core.BaseAppConfig{
-	// 	IsDev:   gk.devFlag,
-	// 	DataDir: gk.dataDirFlag,
-	// })}
+	gk.appWrapper = &appWrapper{core.NewBaseApp(core.BaseAppConfig{
+		IsDev:   gk.devFlag,
+		DataDir: gk.dataDirFlag,
+	})}
 
 	return gk
 }
@@ -81,11 +83,11 @@ func (gk *Gleank) Start() error {
 	return gk.Execute()
 }
 func (gk *Gleank) Execute() error {
-	// if !gk.skipBootstrap() {
-	// 	if err := gk.Bootstrap(); err != nil {
-	// 		return err
-	// 	}
-	// }
+	if !gk.skipBootstrap() {
+		if err := gk.Bootstrap(); err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	done := make(chan bool, 1)
 
@@ -111,6 +113,49 @@ func (gk *Gleank) Execute() error {
 	// TODO : Trigger Cleanups
 
 	return fmt.Errorf("")
+}
+
+// skipBootstrap eagerly checks if the app should skip the bootstrap process:
+// - already bootstrapped
+// - is unknown command
+// - is the default help command
+// - is the default version command
+//
+// https://github.com/pocketbase/pocketbase/issues/404
+// https://github.com/pocketbase/pocketbase/discussions/1267
+func (gk *Gleank) skipBootstrap() bool {
+	flags := []string{
+		"-h",
+		"--help",
+		"-v",
+		"--version",
+	}
+
+	if gk.IsBootstrapped() {
+		return true // already bootstrapped
+	}
+
+	cmd, _, err := gk.RootCmd.Find(os.Args[1:])
+	if err != nil {
+		return true // unknown command
+	}
+
+	for _, arg := range os.Args {
+		if !utils.ExistInSlice(arg, flags) {
+			continue
+		}
+
+		// ensure that there is no user defined flag with the same name/shorthand
+		trimmed := strings.TrimLeft(arg, "-")
+		if len(trimmed) > 1 && cmd.Flags().Lookup(trimmed) == nil {
+			return true
+		}
+		if len(trimmed) == 1 && cmd.Flags().ShorthandLookup(trimmed) == nil {
+			return true
+		}
+	}
+
+	return false
 }
 
 // inspectRuntime tries to find the base executable directory and how it was run.

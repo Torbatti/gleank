@@ -12,16 +12,16 @@ import (
 
 const createFolder = `-- name: CreateFolder :one
 INSERT INTO folders (
-  user, url , public , name , description
+  user, path , public , name , description
 ) VALUES (
   ?, ? , ? , ? , ?
 )
-RETURNING id, url, name, description, user, public
+RETURNING id, path, name, description, user, public
 `
 
 type CreateFolderParams struct {
 	User        int64
-	Url         string
+	Path        string
 	Public      sql.NullBool
 	Name        string
 	Description sql.NullString
@@ -30,7 +30,7 @@ type CreateFolderParams struct {
 func (q *Queries) CreateFolder(ctx context.Context, arg CreateFolderParams) (Folder, error) {
 	row := q.db.QueryRowContext(ctx, createFolder,
 		arg.User,
-		arg.Url,
+		arg.Path,
 		arg.Public,
 		arg.Name,
 		arg.Description,
@@ -38,7 +38,7 @@ func (q *Queries) CreateFolder(ctx context.Context, arg CreateFolderParams) (Fol
 	var i Folder
 	err := row.Scan(
 		&i.ID,
-		&i.Url,
+		&i.Path,
 		&i.Name,
 		&i.Description,
 		&i.User,
@@ -81,6 +81,27 @@ func (q *Queries) CreateLink(ctx context.Context, arg CreateLinkParams) (Link, e
 	return i, err
 }
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (
+  name, uuid 
+) VALUES (
+  ?, ? 
+)
+RETURNING id, name, uuid
+`
+
+type CreateUserParams struct {
+	Name string
+	Uuid interface{}
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Uuid)
+	var i User
+	err := row.Scan(&i.ID, &i.Name, &i.Uuid)
+	return i, err
+}
+
 const deleteFolder = `-- name: DeleteFolder :exec
 DELETE FROM folders
 WHERE id = ?
@@ -101,8 +122,18 @@ func (q *Queries) DeleteLink(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = ?
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
 const getFolder = `-- name: GetFolder :one
-SELECT id, url, name, description, user, public FROM folders
+SELECT id, path, name, description, user, public FROM folders
 WHERE id = ? LIMIT 1
 `
 
@@ -111,7 +142,26 @@ func (q *Queries) GetFolder(ctx context.Context, id int64) (Folder, error) {
 	var i Folder
 	err := row.Scan(
 		&i.ID,
-		&i.Url,
+		&i.Path,
+		&i.Name,
+		&i.Description,
+		&i.User,
+		&i.Public,
+	)
+	return i, err
+}
+
+const getFolderByPath = `-- name: GetFolderByPath :one
+SELECT id, path, name, description, user, public FROM folders
+WHERE path = ? LIMIT 1
+`
+
+func (q *Queries) GetFolderByPath(ctx context.Context, path string) (Folder, error) {
+	row := q.db.QueryRowContext(ctx, getFolderByPath, path)
+	var i Folder
+	err := row.Scan(
+		&i.ID,
+		&i.Path,
 		&i.Name,
 		&i.Description,
 		&i.User,
@@ -138,8 +188,20 @@ func (q *Queries) GetLink(ctx context.Context, id int64) (Link, error) {
 	return i, err
 }
 
+const getUser = `-- name: GetUser :one
+SELECT id, name, uuid FROM users
+WHERE id = ? LIMIT 1
+`
+
+func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, id)
+	var i User
+	err := row.Scan(&i.ID, &i.Name, &i.Uuid)
+	return i, err
+}
+
 const listFolders = `-- name: ListFolders :many
-SELECT id, url, name, description, user, public FROM folders
+SELECT id, path, name, description, user, public FROM folders
 WHERE id = ?
 ORDER BY name
 `
@@ -155,7 +217,7 @@ func (q *Queries) ListFolders(ctx context.Context, id int64) ([]Folder, error) {
 		var i Folder
 		if err := rows.Scan(
 			&i.ID,
-			&i.Url,
+			&i.Path,
 			&i.Name,
 			&i.Description,
 			&i.User,
@@ -196,6 +258,35 @@ func (q *Queries) ListLinks(ctx context.Context, id int64) ([]Link, error) {
 			&i.Description,
 			&i.Folder,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, name, uuid FROM users
+WHERE id = ?
+ORDER BY name
+`
+
+func (q *Queries) ListUsers(ctx context.Context, id int64) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(&i.ID, &i.Name, &i.Uuid); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -256,5 +347,21 @@ func (q *Queries) UpdateLink(ctx context.Context, arg UpdateLinkParams) error {
 		arg.Description,
 		arg.ID,
 	)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+set name = ?
+WHERE id = ?
+`
+
+type UpdateUserParams struct {
+	Name string
+	ID   int64
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.ExecContext(ctx, updateUser, arg.Name, arg.ID)
 	return err
 }

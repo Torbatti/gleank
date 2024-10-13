@@ -1,4 +1,3 @@
--- https://www.sqlite.org/datatype3.html
 CREATE TABLE links (
   id   INTEGER PRIMARY KEY,
   
@@ -12,7 +11,7 @@ CREATE TABLE links (
 CREATE TABLE folders (
   id   INTEGER PRIMARY KEY,
   
-  url text NOT NULL,
+  path text NOT NULL,
   name text NOT NULL,
   description text,
 
@@ -24,17 +23,5 @@ CREATE TABLE users (
   id   INTEGER PRIMARY KEY,
 
   name text NOT NULL,
-  uuid string
+  uuid string NOT NULL
 );
-
--- CREATE TABLE link_folders (
---   id   INTEGER PRIMARY KEY,
---   link_id   INTEGER NOT NULL,
---   folder_id   INTEGER NOT NULL
--- );
-
--- CREATE TABLE user_folders (
---   id   INTEGER PRIMARY KEY,
---   user_id   INTEGER NOT NULL,
---   folder_id   INTEGER NOT NULL
--- );

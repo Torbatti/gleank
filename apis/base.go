@@ -13,6 +13,7 @@ func InitApi(app core.App) (*chi.Mux, error) {
 	r := chi.NewRouter()
 
 	// Default Middlewares
+	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {

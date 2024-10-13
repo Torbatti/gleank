@@ -10,7 +10,7 @@ import (
 
 type Folder struct {
 	ID          int64
-	Url         string
+	Path        string
 	Name        string
 	Description sql.NullString
 	User        int64
