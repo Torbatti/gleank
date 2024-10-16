@@ -1,0 +1,7 @@
+/* .box{width:calc(100% - .5rem);margin:auto;} */
+/* @media screen and (min-width:719px)     {.box{width: calc(720px - .75rem);}} */
+/* @media screen and (min-width:1079px)    {.box{width: calc(1080px - .75rem);}} */
+
+.abox{margin:auto;}
+@media screen and (min-width:719px)     {.abox{width: calc(720px - .75rem);}}
+@media screen and (min-width:1079px)    {.abox{width: calc(1080px - .75rem);}}

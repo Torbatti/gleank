@@ -1,0 +1,37 @@
+package views
+
+templ auth_register_page(info PageInfo) {
+    @BaseLayout(){
+		@BaseHead(info.HeadInfo){}
+
+		@BaseBody(){
+			@BaseHeader(info.UserInfo)
+			<div class="register_form">
+			<div class="abox">
+			
+				<h1>Register</h1>
+				
+				<div id="error_box">
+				
+				</div>
+
+				<form hx-post="/hx/auth/register" hx-trigger="submit" hx-target="#error_box" hx-swap="innerHTML">
+    				<input type="email" name="email" id="">
+					<input type="text" name="user_name" id="">
+					<button type="submit">Register</button>
+				</form>
+
+			
+			</div>
+			</div>
+		}
+	}
+}
+
+templ register_errorr_box() {
+	<div class="error-message">
+		
+		<h1>Email or Username are used before!</h1>
+
+	</div>
+}

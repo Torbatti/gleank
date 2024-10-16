@@ -1,7 +1,6 @@
 package views
 
 import (
-	"bytes"
 	"context"
 	"log"
 	"net/http"
@@ -16,46 +15,30 @@ type HeadInfo struct {
 	Description string
 }
 
+type UserInfo struct {
+	isLoggedIn bool
+	name       string
+}
+
 type PageInfo struct {
 	// seo related
 	HeadInfo HeadInfo
 
-	// Game models.Game
+	UserInfo UserInfo
 }
 
 func BindViews(app core.App, r *chi.Mux) {
+	hxIslandUserHeader(app, r)
+
+	BindStaticPublic(app, r)
+
 	indexPage(app, r)
 
 	authNewPage(app, r)
+	authPages(app, r)
 
 	folderPage(app, r)
-}
 
-func indexPage(app core.App, r *chi.Mux) {
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-
-		// // Checks if page is cached in app.store
-		// page, err := app.Store().Str().Get("page-index")
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-		// if page.String() != "" {
-		// 	w.Write([]byte(page))
-		// }
-
-		info := PageInfo{
-			HeadInfo: HeadInfo{
-				Title:       "Gleank",
-				Description: "a Link Shortener Social Media",
-			},
-		}
-
-		var buffer = bytes.NewBufferString("")
-		index_page(info).Render(r.Context(), buffer)
-		app.Store().Str().Set("page-index", buffer.String())
-
-		w.Write([]byte(buffer.String()))
-	})
 }
 
 func authNewPage(app core.App, r *chi.Mux) {

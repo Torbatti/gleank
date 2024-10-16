@@ -1,0 +1,12 @@
+package views
+
+templ auth_login_page(info PageInfo) {
+    @BaseLayout(){
+		@BaseHead(info.HeadInfo){}
+
+		@BaseBody(){
+			@BaseHeader(info.UserInfo)
+			<h1>login</h1>
+		}
+	}
+}

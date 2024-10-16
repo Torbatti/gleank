@@ -1,0 +1,43 @@
+header{
+    width:100%;
+    background-color:var(--c01);
+}
+
+#header{
+    height:4rem;
+    
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+#header__right #ordk{
+    font-size: large;
+    font-weight:bold;
+    color:var(--c06);
+}
+
+#header__left__auth{
+
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+
+    color:var(--c02);
+}
+
+#subheader{
+    padding:.5rem 0;
+    
+    width: 100%;
+    border-bottom:2px solid var(--c01);
+}
+
+#sub_header{
+    height:2rem;
+
+    display:flex;
+    align-items:center;
+    gap:1rem;
+}

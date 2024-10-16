@@ -2,10 +2,33 @@ package views
 
 templ index_page(info PageInfo) {
     @BaseLayout(){
-		@BaseHead(info.HeadInfo){}
+		@BaseHead(info.HeadInfo){
+			<style>
+				.goto{margin-top:.5rem;}
+				.goto .abox{
+					padding:.5rem;
+					background-color:var(--c01);
+					color:var(--c02);
+					border-radius:.5rem;
+				}
+			</style>
+		}
 
 		@BaseBody(){
-			@BaseHeader()
+			@BaseHeader(info.UserInfo)
+
+
+			<div class="goto">
+			<div class="abox">
+
+				<form>
+					<input type="text" name="goto-folder" id="">
+					<button type="submit">Go to a Folder</button>
+				</form>
+			
+			</div>
+			</div>
+			
 		}
 	}
 }

@@ -1,0 +1,48 @@
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin:       0;
+  padding:      0;
+}
+
+*{
+  padding:0;
+  margin:0;
+  border: 0;
+  box-sizing:border-box;
+	font-size: 100%;
+	font: inherit;
+  vertical-align:baseline;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{/*Remove the default font size and weight for headings.*/
+  font-size: inherit;
+  font-weight: inherit;
+  overflow-wrap: break-word;
+}
+
+a{/*Reset links to optimize for opt-in styling instead of opt-out.*/
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/* Medias */
+img,
+picture {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+}
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}

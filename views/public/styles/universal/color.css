@@ -1,0 +1,42 @@
+/* Variables */
+:root{
+    --c01: #12130f ;
+    --c02: #fff ;
+    --c03: #339989 ;
+    --c04: #e56b6f ;
+    --c05: #8e7dbe ;
+    --c06: #f0e553 ;
+
+    --c11: #fff ;
+    --c12: #7a7a7a ;
+    --c13: #fff ;
+    --c14: #fff ;
+    --c15: #D64933 ;
+
+}
+
+/* Background Colors */
+.bg01{background-color:var(--c01);}
+.bg02{background-color:var(--c02);}
+.bg03{background-color:var(--c03);}
+.bg04{background-color:var(--c04);}
+.bg05{background-color:var(--c05);}
+
+.bg11{background-color:var(--c11);}
+.bg12{background-color:var(--c12);}
+.bg13{background-color:var(--c13);}
+.bg14{background-color:var(--c14);}
+.bg15{background-color:var(--c15);}
+
+/* Text Colors */
+.tc01{color:var(--c01);}
+.tc02{color:var(--c02);}
+.tc03{color:var(--c03);}
+.tc04{color:var(--c04);}
+.tc05{color:var(--c05);}
+
+.tc11{color:var(--c11);}
+.tc12{color:var(--c12);}
+.tc13{color:var(--c13);}
+.tc14{color:var(--c14);}
+.tc15{color:var(--c15);}

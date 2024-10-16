@@ -83,22 +83,28 @@ func (q *Queries) CreateLink(ctx context.Context, arg CreateLinkParams) (Link, e
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  name, uuid 
+  name , email , uuid
 ) VALUES (
-  ?, ? 
+  ?, ? , ?
 )
-RETURNING id, name, uuid
+RETURNING id, email, name, uuid
 `
 
 type CreateUserParams struct {
-	Name string
-	Uuid interface{}
+	Name  string
+	Email string
+	Uuid  interface{}
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Uuid)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email, arg.Uuid)
 	var i User
-	err := row.Scan(&i.ID, &i.Name, &i.Uuid)
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Uuid,
+	)
 	return i, err
 }
 
@@ -189,14 +195,55 @@ func (q *Queries) GetLink(ctx context.Context, id int64) (Link, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, uuid FROM users
+SELECT id, email, name, uuid FROM users
 WHERE id = ? LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
 	var i User
-	err := row.Scan(&i.ID, &i.Name, &i.Uuid)
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Uuid,
+	)
+	return i, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, name, uuid FROM users
+WHERE email = ?
+LIMIT 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Uuid,
+	)
+	return i, err
+}
+
+const getUserByName = `-- name: GetUserByName :one
+SELECT id, email, name, uuid FROM users
+WHERE name = ?
+LIMIT 1
+`
+
+func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByName, name)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Uuid,
+	)
 	return i, err
 }
 
@@ -272,7 +319,7 @@ func (q *Queries) ListLinks(ctx context.Context, id int64) ([]Link, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, uuid FROM users
+SELECT id, email, name, uuid FROM users
 WHERE id = ?
 ORDER BY name
 `
@@ -286,7 +333,12 @@ func (q *Queries) ListUsers(ctx context.Context, id int64) ([]User, error) {
 	var items []User
 	for rows.Next() {
 		var i User
-		if err := rows.Scan(&i.ID, &i.Name, &i.Uuid); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.Uuid,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -54,15 +54,23 @@ WHERE id = ?;
 -- name: GetUser :one
 SELECT * FROM users
 WHERE id = ? LIMIT 1;
+-- name: GetUserByEmail :one
+SELECT * FROM users
+WHERE email = ?
+LIMIT 1;
+-- name: GetUserByName :one
+SELECT * FROM users
+WHERE name = ?
+LIMIT 1;
 -- name: ListUsers :many
 SELECT * FROM users
 WHERE id = ?
 ORDER BY name;
 -- name: CreateUser :one
 INSERT INTO users (
-  name, uuid 
+  name , email , uuid
 ) VALUES (
-  ?, ? 
+  ?, ? , ?
 )
 RETURNING *;
 -- name: UpdateUser :exec

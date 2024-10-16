@@ -1,0 +1,25 @@
+#baziha_pc .abox{
+    display:grid;
+    grid-template-columns: repeat(6,1fr);
+
+    gap:.5rem;
+    align-items:center;
+    height:248px;
+    position: relative;
+    border-radius:.25rem;
+    
+    /* border: 2px solid red; */
+}
+
+#baziha_pc .abox::before{
+    position: absolute;
+    top:.25rem;
+    right:0;
+
+    background-color:var(--c06);
+    color:var(--c01);
+    
+    font-size:small;
+    padding:.125rem .25rem;
+    content: "جدید ترین بازی های کامپیوتر";
+}

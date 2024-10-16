@@ -1,4 +1,4 @@
-CREATE TABLE links (
+CREATE TABLE if not exists links (
   id   INTEGER PRIMARY KEY,
   
   url text NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE links (
   folder INTEGER NOT NULL
 );
 
-CREATE TABLE folders (
+CREATE TABLE if not exists folders (
   id   INTEGER PRIMARY KEY,
   
   path text NOT NULL,
@@ -19,9 +19,10 @@ CREATE TABLE folders (
   public BOOLEAN
 );
 
-CREATE TABLE users (
+CREATE TABLE if not exists users (
   id   INTEGER PRIMARY KEY,
 
+  email text NOT NULL,
   name text NOT NULL,
   uuid string NOT NULL
 );

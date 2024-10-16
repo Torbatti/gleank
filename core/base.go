@@ -5,13 +5,19 @@ import (
 	"database/sql"
 	_ "embed"
 	"log"
+	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/Torbatti/gleank/models"
 	"github.com/Torbatti/gleank/models/settings"
 	sqlz "github.com/Torbatti/gleank/models/sqlc"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nalgeon/redka"
+
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/joho/godotenv"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 var _ App = (*BaseApp)(nil)
@@ -23,9 +29,10 @@ type BaseApp struct {
 	dataDir string
 
 	// internals
-	store *redka.DB
-	db    *sql.DB
-	rk    *redka.DB
+	db         *sql.DB
+	db_context context.Context
+	store      *redka.DB
+	tokenAuth  *jwtauth.JWTAuth
 	// logsdb *sql.DB
 
 	// settings string
@@ -82,6 +89,10 @@ func (app *BaseApp) Bootstrap() error {
 	// 	return err
 	// }
 
+	if err := app.initAuthToken(); err != nil {
+		return err
+	}
+
 	if err := app.initDataDB(); err != nil {
 		return err
 	}
@@ -114,6 +125,11 @@ func (app *BaseApp) DB() *sql.DB {
 	return app.db
 }
 
+func (app *BaseApp) DB_Context() context.Context {
+
+	return app.db_context
+}
+
 // // LogsDB returns the app logs database instance.
 // func (app *BaseApp) LogsDB() *sql.DB {
 // 	return app.logsdb
@@ -141,6 +157,11 @@ func (app *BaseApp) Store() *redka.DB {
 	return app.store
 }
 
+// Store returns the app internal runtime store.
+func (app *BaseApp) TokenAuth() *jwtauth.JWTAuth {
+	return app.tokenAuth
+}
+
 func (app *BaseApp) initDataDB() error {
 
 	ctx := context.Background()
@@ -162,8 +183,11 @@ func (app *BaseApp) initDataDB() error {
 	}
 
 	app.db = db
+	app.db_context = ctx
 
 	println("db end init")
+
+	// TODO : ADD DEINIT TO CLOSE DB!!
 
 	return nil
 }
@@ -172,15 +196,43 @@ func (app *BaseApp) initDataStore() error {
 
 	println("store start init")
 
-	rk_path := filepath.Join(app.DataDir(), "rk.db")
-	rk, err := redka.Open("file:"+rk_path+"?_journal=WAL", nil)
+	store_path := filepath.Join(app.DataDir(), "rk.db")
+	store, err := redka.Open("file:"+store_path+"?_journal=WAL", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	app.rk = rk
+	app.store = store
 
 	println("store end init")
+
+	// TODO : ADD DEINIT TO CLOSE STORE!!
+
+	return nil
+}
+
+func (app *BaseApp) initAuthToken() error {
+
+	println("tokenAuth start init")
+
+	// more info on env :
+	// https://towardsdatascience.com/use-environment-variable-in-your-next-golang-project-39e17c3aaa66
+
+	// load .env file
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	env_authToken := os.Getenv("AUTH_TOKEN")
+	if env_authToken == "" {
+		log.Fatal("Error: AUTH_TOKEN Not Found Inside .env file")
+	}
+
+	tokenAuth := jwtauth.New("HS256", []byte(env_authToken), nil, jwt.WithAcceptableSkew(30*time.Second))
+
+	app.tokenAuth = tokenAuth
+
+	println("tokenAuth end init")
 
 	return nil
 }

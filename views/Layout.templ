@@ -1,5 +1,7 @@
 package views
 
+import "fmt"
+
 templ BaseLayout() {
 
     <!DOCTYPE html>
@@ -22,9 +24,37 @@ templ BaseHead(info HeadInfo) {
 		<title>{info.Title}</title>
 
 		// <script src="https://unpkg.com/htmx.org@2.0.2"></script>
-		// <script src="/scripts/htmx.min.js"></script>
+		<script src="/public/scripts/htmx.min.js"></script>
+		<link rel="stylesheet" href="/public/styles/universal/albors.css">
+
 
 		// <link rel="stylesheet" href="/public/styles/universal/albors.css">
+		<style>
+			header{
+				height:5rem;
+
+				background-color:var(--c01);
+				color:var(--c02);
+				
+				display:flex;
+				align-items:center;
+			}
+			header .abox{
+				display:flex;
+				justify-content:space-between;
+				align-items:center;
+
+			}
+			.header-gleank{
+				font-size:x-large;
+			}
+			#header-user{
+				display:flex;
+				align-items:center;
+				gap:.5rem;
+			}
+
+		</style>
 
         { children... }
 
@@ -40,8 +70,35 @@ templ BaseBody() {
 
 }
 
-templ BaseHeader() {
+templ BaseHeader(info UserInfo) {
 	<header>
-		<h1>تست</h1>
+	<div class="abox">
+		
+		<div>
+			<h1 class="header-gleank"><a href="/">Gleank</a></h1>
+		</div>
+	
+		<div id="header-user" hx-get="/island/user-header" hx-trigger="load">
+			<a href="/auth/register">register</a>
+			<p>|</p>
+			<a href="/auth/login">login</a>
+		</div>
+
+	</div>
 	</header>
+}
+
+templ IslandHeader(info UserInfo) {
+
+	<div id="header-user">
+		if info.isLoggedIn {
+			<p><a href={templ.URL(fmt.Sprintf("/user/%s",info.name))}>{info.name}</a></p>
+			<p>|</p>
+			<p><a href="/auth/logout" hx-post="/hx/auth/logout" hx-trigger="click">Logout</a></p>
+		} else {
+			<p><a href="/auth/register">Register</a></p>
+			<p>|</p>
+			<p><a href="/auth/login">Login</a></p>
+		}
+	</div>
 }

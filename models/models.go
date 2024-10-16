@@ -26,7 +26,8 @@ type Link struct {
 }
 
 type User struct {
-	ID   int64
-	Name string
-	Uuid interface{}
+	ID    int64
+	Email string
+	Name  string
+	Uuid  interface{}
 }
